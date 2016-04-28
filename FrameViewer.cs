@@ -52,11 +52,13 @@ public class FrameViewer : MonoBehaviour
     private Texture2D tmpTexture;
     private int tmpCurrentFrame = 0;
     private float playSpeed = 0.6f;
-    private Dictionary<string, Texture2D> rotate360Dic = new Dictionary<string, Texture2D>();
+    private Dictionary<Texture2D, string> rotate360Dic = new Dictionary<Texture2D, string>();
     private List<Texture2D> rotate360List = new List<Texture2D>();
     private bool beginSpin = false;
     private float angle = 0;
     private float spinSpeed = 0.02f;
+
+    private UIWindowBase myWindow;
 
 
     // Use this for initialization
@@ -198,9 +200,11 @@ public class FrameViewer : MonoBehaviour
                     frames.Add(tmp);
                     if (i == firstFrameNum)
                     {
-                        rotate360Dic.Add(filePathAndName, tmp);
+                        rotate360Dic.Add(tmp, filePathAndName);
                         rotate360List.Add(tmp);
                     }
+                    if (i == lastFrameNum - 1)
+                        rotate360Dic.Add(tmp, filePathAndName);
                     Resources.UnloadAsset(tmp);
                 }
             }
@@ -214,9 +218,11 @@ public class FrameViewer : MonoBehaviour
                     frames.Add(tmp);
                     if (i == firstFrameNum)
                     {
-                        rotate360Dic.Add(filePathAndName, tmp);
+                        rotate360Dic.Add(tmp, filePathAndName);
                         rotate360List.Add(tmp);
                     }
+                    if (i == lastFrameNum - 1)
+                        rotate360Dic.Add(tmp, filePathAndName);
                     Resources.UnloadAsset(tmp);
                 }
             }
@@ -270,14 +276,20 @@ public class FrameViewer : MonoBehaviour
         {
             annotationMode = true;
             reviewMode = false;
-            annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Exit Annotation";
-            UIWindowBase myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
+            annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Save";
+            myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
         }
         else
         {
+            string annotation = myWindow.GetComponentInChildren<InputField>().text;
+            string date = DateTime.Now.ToString();
+            float camAngle = Camera.main.transform.eulerAngles.y;
+            string fileName = currentFrameList[currentFrame].name;
+            databaseControl.SaveAnnotation(currentFile, fileName, date, camAngle, annotation);
+            Destroy(myWindow.gameObject, 0f);
             annotationMode = false;
             reviewMode = true;
-            annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Begin Annotation";
+            annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Annotation";
 
         }
     }
@@ -380,7 +392,7 @@ public class FrameViewer : MonoBehaviour
             {
                 rotate360List.Remove(currentFrameList[currentFrame]);
                 StartCoroutine(CamSpin());
-                currentFile = rotate360Dic.FirstOrDefault(x => x.Value == currentFrameList[currentFrame]).Key;
+                currentFile = rotate360Dic[currentFrameList[currentFrame]];
                 Debug.LogWarning("Frame file path: " + currentFile);
             }
         }
@@ -430,24 +442,25 @@ public class FrameViewer : MonoBehaviour
             gameObject.GetComponent<Renderer>().material.mainTexture = currentFrameList[currentFrame];
             PlayAudioReminder(playTime);
             Debug.Log("Play time is " + playTime);
+            if (rotate360Dic.ContainsKey(currentFrameList[currentFrame]))
+                currentFile = rotate360Dic[currentFrameList[currentFrame]];
             if (tmpTexture != currentFrameList[currentFrame])
             {
                 Resources.UnloadAsset(tmpTexture);
                 tmpTexture = currentFrameList[currentFrame];
             }
-            Debug.LogWarning("Current File: " + currentFile);
         }
     }
 
     public void PlayAnnotation()
     {
-        //Annotaton Process
-        Vector3 mousePosInScreen = Input.mousePosition;
-        Debug.Log("Mouse Position: " + mousePosInScreen.x + "," + mousePosInScreen.y);
-        Vector3 mousePosInWorld = Camera.main.ScreenToWorldPoint(mousePosInScreen);
-        float windowX = mousePosInWorld.x;
-        float windowY = mousePosInWorld.y;
-        Debug.Log("Window Position: " + windowX + "," + windowY);
+        ////Annotaton Process
+        //Vector3 mousePosInScreen = Input.mousePosition;
+        //Debug.Log("Mouse Position: " + mousePosInScreen.x + "," + mousePosInScreen.y);
+        //Vector3 mousePosInWorld = Camera.main.ScreenToWorldPoint(mousePosInScreen);
+        //float windowX = mousePosInWorld.x;
+        //float windowY = mousePosInWorld.y;
+        //Debug.Log("Window Position: " + windowX + "," + windowY);
     }
 
     // Make the camera spin 360
@@ -463,4 +476,5 @@ public class FrameViewer : MonoBehaviour
         playNavigationMode = true;
         Camera.main.transform.eulerAngles = new Vector3(0, 0, 0);
     }
+
 }

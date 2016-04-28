@@ -23,7 +23,8 @@ public class CameraControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameObject.Find("sphere screen").GetComponent<FrameViewer>().reviewMode || GameObject.Find("sphere screen").GetComponent<FrameViewer>().playNavigationMode)
+        //if (GameObject.Find("sphere screen").GetComponent<FrameViewer>().reviewMode || GameObject.Find("sphere screen").GetComponent<FrameViewer>().playNavigationMode)
+        if(!GameObject.Find("sphere screen").GetComponent<FrameViewer>().annotationMode)
         {
             if (Input.GetKey(KeyCode.A))
             {
@@ -42,7 +43,7 @@ public class CameraControl : MonoBehaviour
     // Rotate camare to face mouse
     void Turning()
     {
-        if (!(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
+        if (!(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)) && !GameObject.Find("sphere screen").GetComponent<FrameViewer>().annotationMode)
         {
             if (Input.GetMouseButton(0))
             {

@@ -102,30 +102,6 @@ namespace Assets.Scripts
             return videoList;
         }
 
-        //public List<string> GetAllbundlePath()
-        //{
-        //    List<string> bundleList = new List<string>();
-        //    string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3";//Path to database.
-        //    IDbConnection dbconn = new SqliteConnection(conn);
-        //    dbconn.Open();
-        //    IDbCommand dbcmd = dbconn.CreateCommand();
-        //    string sqlQuery = "SELECT * FROM VideoInfo";
-        //    dbcmd.CommandText = sqlQuery;
-        //    IDataReader reader = dbcmd.ExecuteReader();
-        //    while (reader.Read())
-        //    {
-        //        string bundleName = reader.GetString(1);
-        //        bundleList.Add(bundleName);
-        //    }
-        //    reader.Close();
-        //    reader = null;
-        //    dbcmd.Dispose();
-        //    dbcmd = null;
-        //    dbconn.Close();
-        //    dbconn = null;
-        //    return bundleList;
-        //}
-
         public string GetPlayInfo(string FromVertexStr, string ToVertexStr, string VideoName)
         {
             string filePath = "";
@@ -168,6 +144,20 @@ namespace Assets.Scripts
             dbconn = null;
             Debug.LogWarning("filePath: " + filePath);
             return filePath;
+        }
+
+        public void SaveAnnotation(string FilePath, string Frame, string Date, float CameraAngle, string Annotaion )
+        {
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3"; //Path to database.
+            IDbConnection dbconn;
+            dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "INSERT INTO `Annotation Info`(`FilePath`,`Frame`,`Date`,`CameraAngle`,`Annotation`) VALUES ('" + FilePath + "','" + Frame + "','" + Date + "'," + CameraAngle + ",'" + Annotaion + "' )";
+            dbcmd.CommandText = sqlQuery;
+            int index = dbcmd.ExecuteNonQuery();
+            Debug.LogWarning("Annotation Index: " + index);
+            dbconn.Close();
         }
     }
 }

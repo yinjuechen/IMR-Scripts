@@ -55,13 +55,10 @@ public class CanvasScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         playTime = GameObject.Find("sphere screen").GetComponent<FrameViewer>().playTime;
         Debug.Log("Play time In CanvasScript: " + playTime);
         TimeCheck(playTime);
     }
-
-
 
     void TimeCheck(float time)
     {
