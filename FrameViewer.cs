@@ -5,7 +5,6 @@ using System.Linq;
 using Assets.Scripts;
 using NGenerics.Algorithms;
 using NGenerics.DataStructures.General;
-using SpeechLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
@@ -35,6 +34,8 @@ public class FrameViewer : MonoBehaviour
     public bool reviewMode;
     public bool annotationMode;
     public UIWindowBase annotationWindow;
+    bool tmpreviewMode = false;
+    bool tmpplayNavigationMode = false;
 
     public Button Room308BTN;
     public Button AisleBTN;
@@ -200,11 +201,15 @@ public class FrameViewer : MonoBehaviour
                     frames.Add(tmp);
                     if (i == firstFrameNum)
                     {
-                        rotate360Dic.Add(tmp, filePathAndName);
+                        if (!rotate360Dic.ContainsKey(tmp))
+                            rotate360Dic.Add(tmp, filePathAndName);
                         rotate360List.Add(tmp);
                     }
                     if (i == lastFrameNum - 1)
-                        rotate360Dic.Add(tmp, filePathAndName);
+                    {
+                        if (!rotate360Dic.ContainsKey(tmp))
+                            rotate360Dic.Add(tmp, filePathAndName);
+                    }
                     Resources.UnloadAsset(tmp);
                 }
             }
@@ -218,11 +223,15 @@ public class FrameViewer : MonoBehaviour
                     frames.Add(tmp);
                     if (i == firstFrameNum)
                     {
-                        rotate360Dic.Add(tmp, filePathAndName);
+                        if (!rotate360Dic.ContainsKey(tmp))
+                            rotate360Dic.Add(tmp, filePathAndName);
                         rotate360List.Add(tmp);
                     }
                     if (i == lastFrameNum - 1)
-                        rotate360Dic.Add(tmp, filePathAndName);
+                    {
+                        if (!rotate360Dic.ContainsKey(tmp))
+                            rotate360Dic.Add(tmp, filePathAndName);
+                    }
                     Resources.UnloadAsset(tmp);
                 }
             }
@@ -275,7 +284,10 @@ public class FrameViewer : MonoBehaviour
         if (!annotationMode)
         {
             annotationMode = true;
+            tmpreviewMode = reviewMode;
+            tmpplayNavigationMode = playNavigationMode;
             reviewMode = false;
+            playNavigationMode = false;
             annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Save";
             myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
         }
@@ -288,7 +300,8 @@ public class FrameViewer : MonoBehaviour
             databaseControl.SaveAnnotation(currentFile, fileName, date, camAngle, annotation);
             Destroy(myWindow.gameObject, 0f);
             annotationMode = false;
-            reviewMode = true;
+            playNavigationMode = tmpplayNavigationMode;
+            reviewMode = tmpreviewMode;
             annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Annotation";
 
         }
@@ -475,6 +488,21 @@ public class FrameViewer : MonoBehaviour
         }
         playNavigationMode = true;
         Camera.main.transform.eulerAngles = new Vector3(0, 0, 0);
+    }
+
+    public IEnumerator GetAnnotaion(string filePath, string fileDate)
+    {
+        Debug.LogWarning("In getannotation");
+        reviewMode = false;
+        playNavigationMode = false;
+        annotationMode = false;
+        Debug.LogWarning(fileDate);
+        Debug.LogWarning(filePath);
+        ResourceRequest request = Resources.LoadAsync(filePath);
+        yield return request;
+        var tmp = request.asset as Texture2D;
+        gameObject.GetComponent<Renderer>().material.mainTexture = tmp;
+
     }
 
 }

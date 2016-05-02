@@ -159,5 +159,63 @@ namespace Assets.Scripts
             Debug.LogWarning("Annotation Index: " + index);
             dbconn.Close();
         }
+
+        public List<string> GetAnnotaionList()
+        {
+            var annotationList = new List<string>();
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3"; //Path to database.
+            IDbConnection dbconn;
+            dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "SELECT * FROM 'Annotation Info'";
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+            while(reader.Read())
+            {
+                string filePath = reader.GetString(0);
+                string frame = reader.GetString(1);
+                string date = reader.GetString(2);
+                string option = filePath + "/" + frame + "," + date;
+                annotationList.Add(option);
+            }
+            return annotationList;
+        }
+
+        public float GetAnnotaionAngle(string Date)
+        {
+            float angle = 0f;
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3"; //Path to database.
+            IDbConnection dbconn;
+            dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "SELECT * FROM 'Annotation Info' WHERE Date = '" + Date +"'";
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+            while (reader.Read())
+            {
+                angle = reader.GetFloat(3);
+            }
+            return angle;
+        }
+
+        public string GetAnnoatationContent(string Date)
+        {
+            string comment = "";
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3"; //Path to database.
+            IDbConnection dbconn;
+            dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "SELECT * FROM 'Annotation Info' WHERE Date = '" + Date + "'";
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+            while (reader.Read())
+            {
+                comment = reader.GetString(4);
+            }
+            return comment;
+        }
     }
 }
