@@ -4,6 +4,7 @@ using Assets.Scripts;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI.Extensions;
+using UnityEngine.SceneManagement;
 
 public class CanvasScript : MonoBehaviour
 {
@@ -18,7 +19,6 @@ public class CanvasScript : MonoBehaviour
     private Dropdown dropDown;
     private DataBaseControl databasecontrol = new DataBaseControl();
     public UIWindowBase annotationWindow;
-
 
     // Use this for initialization
     void Start()
@@ -121,7 +121,6 @@ public class CanvasScript : MonoBehaviour
         Debug.LogWarning(comment);
         UIWindowBase myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
         myWindow.GetComponentInChildren<InputField>().text = comment;
-
     }
 
     private IEnumerator loadTmpTexture(string filePath, string fileDate)

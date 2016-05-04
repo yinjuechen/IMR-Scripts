@@ -61,7 +61,6 @@ public class FrameViewer : MonoBehaviour
 
     private UIWindowBase myWindow;
 
-
     // Use this for initialization
     void Start()
     {
