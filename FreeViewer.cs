@@ -9,14 +9,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 
-public class FrameViewer : MonoBehaviour
+public class FreeViewer : MonoBehaviour
 {
 
     public string filePathAndName = "";
     public int numberOfFrames = 0;
     public float frameRate = 30;
     public Dictionary<string, List<Texture2D>> videoDic;
-    private string currentFile;
+    public string currentFile;
 
     public AudioClip room308;
     public AudioClip menroom;
@@ -30,7 +30,6 @@ public class FrameViewer : MonoBehaviour
     private int currentMaxFrameNumber;
 
     public Button annotaionBTN;
-    public Button BeginNavigation;
     public bool reviewMode;
     public bool annotationMode;
     public UIWindowBase annotationWindow;
@@ -72,8 +71,7 @@ public class FrameViewer : MonoBehaviour
         databaseControl = new DataBaseControl();
         StartCoroutine(LoadGraph());
         myBundle = new AssetBundle();
-        StartCoroutine(SetLoadFramesForReview(filePathAndName));
-        BeginNavigation.onClick.AddListener(onBeginNavClicked);
+        //StartCoroutine(SetLoadFramesForReview(filePathAndName));
         annotaionBTN.onClick.AddListener(onAnnotationClicked);
     }
 
@@ -153,7 +151,6 @@ public class FrameViewer : MonoBehaviour
         else
         {
             currentFrameList = videoDic[filePathAndName];
-
         }
         float costTime = Time.realtimeSinceStartup - startTime;
     }
@@ -335,7 +332,7 @@ public class FrameViewer : MonoBehaviour
     }
 
     // Find a path between two vertexes
-    public void FindPath(Vertex<string> FromVertex, Vertex<string> ToVertext) 
+    public void FindPath(Vertex<string> FromVertex, Vertex<string> ToVertext)
     {
         Debug.LogWarning("FromVertex Data: " + FromVertex.Data);
         Debug.LogWarning("ToVertex Data: " + ToVertext.Data);
@@ -471,19 +468,25 @@ public class FrameViewer : MonoBehaviour
                 Resources.UnloadAsset(tmpTexture);
                 tmpTexture = currentFrameList[currentFrame];
             }
+            PlayAnnotation();
         }
     }
 
     public void PlayAnnotation()
     {
-        ////Annotaton Process
-        //Vector3 mousePosInScreen = Input.mousePosition;
-        //Debug.Log("Mouse Position: " + mousePosInScreen.x + "," + mousePosInScreen.y);
-        //Vector3 mousePosInWorld = Camera.main.ScreenToWorldPoint(mousePosInScreen);
-        //float windowX = mousePosInWorld.x;
-        //float windowY = mousePosInWorld.y;
-        //Debug.Log("Window Position: " + windowX + "," + windowY);
+        string frame = "Stitched " + string.Format("{0:d3}", currentFrame + 1);
+        string voicefile = databaseControl.AnnotationContains(currentFile, frame);
+        if (voicefile == null)
+             return;
+        Debug.LogWarning(voicefile);
+        if (!sound.isPlaying)
+        {
+            sound.clip = Resources.Load("Sounds/" + voicefile) as AudioClip;
+            sound.Play();
+            Debug.LogWarning("Play Voice File");
+        }
     }
+
 
     // Make the camera spin 360
     private IEnumerator CamSpin()
@@ -513,7 +516,6 @@ public class FrameViewer : MonoBehaviour
         gameObject.GetComponent<Renderer>().material.mainTexture = tmp;
 
     }
-
 
     void TextToSpeech()
     {
