@@ -102,6 +102,55 @@ namespace Assets.Scripts
             return videoList;
         }
 
+        public List<string> GetAllVideoList()
+        {
+            List<string> videoList = new List<string>();
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3";//Path to database.
+            IDbConnection dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "SELECT * FROM VideoInfo";
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+            while (reader.Read())
+            {
+                string video = reader.GetString(0);
+                videoList.Add(video);
+            }
+            reader.Close();
+            reader = null;
+            dbcmd.Dispose();
+            dbcmd = null;
+            dbconn.Close();
+            dbconn = null;
+            return videoList;
+        }
+
+        public string GetVideoInfo(string VideoName)
+        {
+            string fileinfo = "";
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3";//Path to database.
+            IDbConnection dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "SELECT * FROM VideoInfo WHERE Video ='" + VideoName + "'";
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+            while (reader.Read())
+            {
+                string filepath = reader.GetString(1);
+                int frames = reader.GetInt32(2);
+                fileinfo = filepath + "&" + frames + "&0";
+            }
+            reader.Close();
+            reader = null;
+            dbcmd.Dispose();
+            dbcmd = null;
+            dbconn.Close();
+            dbconn = null;
+            return fileinfo;
+        }
+
         public string GetPlayInfo(string FromVertexStr, string ToVertexStr, string VideoName)
         {
             string filePath = "";
@@ -146,14 +195,14 @@ namespace Assets.Scripts
             return filePath;
         }
 
-        public void SaveAnnotation(string FilePath, string Frame, string Date, float CameraAngle, string Annotaion )
+        public void SaveAnnotation(string FilePath, string Frame, string Date, float CameraAngle, string Annotaion, string VoiceFile)
         {
             string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3"; //Path to database.
             IDbConnection dbconn;
             dbconn = new SqliteConnection(conn);
             dbconn.Open();
             IDbCommand dbcmd = dbconn.CreateCommand();
-            string sqlQuery = "INSERT INTO `Annotation Info`(`FilePath`,`Frame`,`Date`,`CameraAngle`,`Annotation`) VALUES ('" + FilePath + "','" + Frame + "','" + Date + "'," + CameraAngle + ",'" + Annotaion + "' )";
+            string sqlQuery = "INSERT INTO `Annotation Info`(`FilePath`,`Frame`,`Date`,`CameraAngle`,`Annotation`,`VoiceFile`) VALUES ('" + FilePath + "','" + Frame + "','" + Date + "','" + CameraAngle + "','" + Annotaion + "','" + VoiceFile + "' )";
             dbcmd.CommandText = sqlQuery;
             int index = dbcmd.ExecuteNonQuery();
             Debug.LogWarning("Annotation Index: " + index);
@@ -171,7 +220,7 @@ namespace Assets.Scripts
             string sqlQuery = "SELECT * FROM 'Annotation Info'";
             dbcmd.CommandText = sqlQuery;
             IDataReader reader = dbcmd.ExecuteReader();
-            while(reader.Read())
+            while (reader.Read())
             {
                 string filePath = reader.GetString(0);
                 string frame = reader.GetString(1);
@@ -190,7 +239,7 @@ namespace Assets.Scripts
             dbconn = new SqliteConnection(conn);
             dbconn.Open();
             IDbCommand dbcmd = dbconn.CreateCommand();
-            string sqlQuery = "SELECT * FROM 'Annotation Info' WHERE Date = '" + Date +"'";
+            string sqlQuery = "SELECT * FROM 'Annotation Info' WHERE Date = '" + Date + "'";
             dbcmd.CommandText = sqlQuery;
             IDataReader reader = dbcmd.ExecuteReader();
             while (reader.Read())
@@ -217,5 +266,24 @@ namespace Assets.Scripts
             }
             return comment;
         }
+
+        public string AnnotationContains(string FilePath, string Frame)
+        {
+            string voicefile = null;
+            string conn = "URI=file:" + Application.dataPath + "/DataBaseTest.sqlite3"; //Path to database.
+            IDbConnection dbconn;
+            dbconn = new SqliteConnection(conn);
+            dbconn.Open();
+            IDbCommand dbcmd = dbconn.CreateCommand();
+            string sqlQuery = "SELECT * FROM 'Annotation Info' WHERE FilePath = '" + FilePath + "'" + "AND Frame = '" + Frame + "'";
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+            while (reader.Read())
+            {
+                voicefile = reader.GetString(5);
+            }
+            return voicefile;
+        }
+
     }
 }

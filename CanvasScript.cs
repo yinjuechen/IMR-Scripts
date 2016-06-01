@@ -9,31 +9,19 @@ using UnityEngine.SceneManagement;
 public class CanvasScript : MonoBehaviour
 {
 
-    private GameObject enter308;
-    private Button enter308BTN;
-    private Text[] enter308TXT;
     private float playTime;
     private float backTime;
     private string fileinfo;
     private bool inRoom308;
-    private Dropdown dropDown;
     private DataBaseControl databasecontrol = new DataBaseControl();
     public UIWindowBase annotationWindow;
 
     // Use this for initialization
     void Start()
     {
-        enter308 = GameObject.Find("Enter308");
-        enter308BTN = enter308.GetComponent<Button>();
-        enter308BTN.interactable = false;
-        enter308TXT = enter308BTN.GetComponentsInChildren<Text>();
-        enter308TXT[0].text = "";
-        enter308BTN.onClick.AddListener(call);
         fileinfo = "frames 007&385&0";
         inRoom308 = false;
-        dropDown = GameObject.Find("ReviewAnnotation").GetComponent<Dropdown>();
         List<string> options = databasecontrol.GetAnnotaionList();
-        dropDown.AddOptions(options);
     }
 
     private void call()
@@ -62,73 +50,75 @@ public class CanvasScript : MonoBehaviour
     {
         playTime = GameObject.Find("sphere screen").GetComponent<FrameViewer>().playTime;
         Debug.Log("Play time In CanvasScript: " + playTime);
-        TimeCheck(playTime);
+        //TimeCheck(playTime);
     }
 
-    void TimeCheck(float time)
-    {
-        if (GameObject.Find("sphere screen").GetComponent<FrameViewer>().reviewMode)
-        {
-            if (!inRoom308)
-            {
-                if (20.6 < time && time < 21.8)
-                {
-                    enter308BTN.interactable = true;
-                    enter308TXT[0].text = "Enter Room 308";
-                    Debug.Log("Enter room 308");
-                }
-                else
-                {
-                    enter308BTN.interactable = false;
-                    enter308TXT[0].text = "";
-                }
-            }
-        }
-        else if (inRoom308)
-        {
-            if (0 <= time && time < 1.6)
-            {
-                enter308BTN.interactable = true;
-                enter308TXT[0].text = "Back to Aisle";
-                Debug.Log("Back to Aisle");
-            }
-            else
-            {
-                enter308BTN.interactable = false;
-                enter308TXT[0].text = "";
-            }
-        }
-    }
+    //void TimeCheck(float time)
+    //{
+    //    if (GameObject.Find("sphere screen").GetComponent<FrameViewer>().reviewMode)
+    //    {
+    //        if (!inRoom308)
+    //        {
+    //            if (20.6 < time && time < 21.8)
+    //            {
+    //                enter308TXT[0].text = "Enter Room 308";
+    //                Debug.Log("Enter room 308");
+    //            }
+    //            else
+    //            {
+    //                enter308TXT[0].text = "";
+    //            }
+    //        }
+    //    }
+    //    else if (inRoom308)
+    //    {
+    //        if (0 <= time && time < 1.6)
+    //        {
+    //            enter308BTN.interactable = true;
+    //            enter308TXT[0].text = "Back to Aisle";
+    //            Debug.Log("Back to Aisle");
+    //        }
+    //        else
+    //        {
+    //            enter308BTN.interactable = false;
+    //            enter308TXT[0].text = "";
+    //        }
+    //    }
+    //}
 
     // Show Annotation
-    public void ShowAnnotation()
-    {
-        string option = dropDown.captionText.text;
-        Debug.LogWarning(option);
-        var optionContent = option.Split(',');
-        string filePath = optionContent[0];
-        string fileDate = optionContent[1];
-        GameObject.Find("sphere screen").GetComponent<FrameViewer>().reviewMode = false;
-        GameObject.Find("sphere screen").GetComponent<FrameViewer>().annotationMode = false;
-        GameObject.Find("sphere screen").GetComponent<FrameViewer>().playNavigationMode = false;
-        //loadTmpTexture(filePath, fileDate);
-        var tmp = Resources.Load(filePath) as Texture2D;
-        GameObject.Find("sphere screen").GetComponent<Renderer>().material.mainTexture = tmp;
-        float camAngle = databasecontrol.GetAnnotaionAngle(fileDate);
-        Debug.LogWarning(camAngle);
-        Camera.main.transform.eulerAngles = new Vector3(0,camAngle,0);
-        string comment = databasecontrol.GetAnnoatationContent(fileDate);
-        Debug.LogWarning(comment);
-        UIWindowBase myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
-        myWindow.GetComponentInChildren<InputField>().text = comment;
-    }
+    //public void ShowAnnotation()
+    //{
+    //    string option = dropDown.captionText.text;
+    //    Debug.LogWarning(option);
+    //    var optionContent = option.Split(',');
+    //    string filePath = optionContent[0];
+    //    string fileDate = optionContent[1];
+    //    GameObject.Find("sphere screen").GetComponent<FrameViewer>().reviewMode = false;
+    //    GameObject.Find("sphere screen").GetComponent<FrameViewer>().annotationMode = false;
+    //    GameObject.Find("sphere screen").GetComponent<FrameViewer>().playNavigationMode = false;
+    //    //loadTmpTexture(filePath, fileDate);
+    //    var tmp = Resources.Load(filePath) as Texture2D;
+    //    GameObject.Find("sphere screen").GetComponent<Renderer>().material.mainTexture = tmp;
+    //    float camAngle = databasecontrol.GetAnnotaionAngle(fileDate);
+    //    Debug.LogWarning(camAngle);
+    //    Camera.main.transform.eulerAngles = new Vector3(0,camAngle,0);
+    //    string comment = databasecontrol.GetAnnoatationContent(fileDate);
+    //    Debug.LogWarning(comment);
+    //    UIWindowBase myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
+    //    myWindow.GetComponentInChildren<InputField>().text = comment;
+    //}
 
     private IEnumerator loadTmpTexture(string filePath, string fileDate)
     {
         ResourceRequest request = Resources.LoadAsync(filePath);
         yield return request;
         var tmp = request.asset as Texture2D;
-        GameObject.Find("sphere screen").GetComponent<Renderer>().material.mainTexture = tmp;
+       GameObject.Find("sphere screen").GetComponent<Renderer>().material.mainTexture = tmp;
     }
 
+    public void LoadScene(int index)
+    {
+        SceneManager.LoadScene(index);
+    }
 }

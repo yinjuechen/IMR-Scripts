@@ -8,14 +8,15 @@ namespace Assets.Scripts
     {
         private SpVoice voice = new SpVoice();
 
-        public void CreatePromt()
+        public void CreatePromt(string Text, string FileName)
         {
             voice.Volume = 100;
             voice.Rate = 0;
             SpFileStream fs = new SpFileStream();
-            fs.Open(@"e:\elevator.wav", SpeechStreamFileMode.SSFMCreateForWrite, false);
+            string path = Application.dataPath + "/Resources/Sounds/" + FileName + ".wav";
+            fs.Open(path, SpeechStreamFileMode.SSFMCreateForWrite, false);
             voice.AudioOutputStream = fs;
-            voice.Speak("You are nearby elevator.", SpeechVoiceSpeakFlags.SVSFDefault);
+            voice.Speak(Text, SpeechVoiceSpeakFlags.SVSFDefault);
             fs.Close();
         }
         private string loadXMLStandalone(string fileName)

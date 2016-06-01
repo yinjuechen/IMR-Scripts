@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 
-public class FrameViewer : MonoBehaviour
+public class AnnoViewer : MonoBehaviour
 {
 
     public string filePathAndName = "";
@@ -30,7 +30,6 @@ public class FrameViewer : MonoBehaviour
     private int currentMaxFrameNumber;
 
     public Button annotaionBTN;
-    public Button BeginNavigation;
     public bool reviewMode;
     public bool annotationMode;
     public UIWindowBase annotationWindow;
@@ -58,7 +57,7 @@ public class FrameViewer : MonoBehaviour
     private bool beginSpin = false;
     private float angle = 0;
     private float spinSpeed = 0.02f;
-    private string voiceFile = "";
+
     private UIWindowBase myWindow;
 
     // Use this for initialization
@@ -72,9 +71,7 @@ public class FrameViewer : MonoBehaviour
         databaseControl = new DataBaseControl();
         StartCoroutine(LoadGraph());
         myBundle = new AssetBundle();
-        StartCoroutine(SetLoadFramesForReview(filePathAndName));
-        BeginNavigation.onClick.AddListener(onBeginNavClicked);
-        annotaionBTN.onClick.AddListener(onAnnotationClicked);
+        //StartCoroutine(SetLoadFramesForReview(filePathAndName));
     }
 
     // Update is called once per frame+
@@ -100,7 +97,7 @@ public class FrameViewer : MonoBehaviour
 
     //Set Load Frames For ReviewMode
     public IEnumerator SetLoadFramesForReview(string fileInfo)
-    {
+      {
         float startTime = Time.realtimeSinceStartup;
         reviewMode = true;
         playNavigationMode = false;
@@ -289,9 +286,6 @@ public class FrameViewer : MonoBehaviour
             playNavigationMode = false;
             annotaionBTN.GetComponentsInChildren<Text>()[0].text = "Save";
             myWindow = Instantiate(annotationWindow, new Vector3((float)0.5 * Screen.width, (float)0.5 * Screen.height, 0), new Quaternion()) as UIWindowBase;
-            Button tts = myWindow.GetComponentInChildren<Button>();
-            tts.onClick.AddListener(TextToSpeech);
-            voiceFile = "";
         }
         else
         {
@@ -299,14 +293,7 @@ public class FrameViewer : MonoBehaviour
             string date = DateTime.Now.ToString();
             float camAngle = Camera.main.transform.eulerAngles.y;
             string fileName = currentFrameList[currentFrame].name;
-            if (voiceFile != "")
-            {
-                databaseControl.SaveAnnotation(currentFile, fileName, date, camAngle, annotation, voiceFile);
-            }
-            else
-            {
-                databaseControl.SaveAnnotation(currentFile, fileName, date, camAngle, annotation, null);
-            }
+           // databaseControl.SaveAnnotation(currentFile, fileName, date, camAngle, annotation);
             Destroy(myWindow.gameObject, 0f);
             annotationMode = false;
             playNavigationMode = tmpplayNavigationMode;
@@ -335,7 +322,7 @@ public class FrameViewer : MonoBehaviour
     }
 
     // Find a path between two vertexes
-    public void FindPath(Vertex<string> FromVertex, Vertex<string> ToVertext) 
+    public void FindPath(Vertex<string> FromVertex, Vertex<string> ToVertext)
     {
         Debug.LogWarning("FromVertex Data: " + FromVertex.Data);
         Debug.LogWarning("ToVertex Data: " + ToVertext.Data);
@@ -514,12 +501,4 @@ public class FrameViewer : MonoBehaviour
 
     }
 
-
-    void TextToSpeech()
-    {
-        string text = myWindow.GetComponentInChildren<InputField>().text;
-        Voice myvoice = new Voice();
-        voiceFile = currentFile + " " + currentFrameList[currentFrame].name + " " + DateTime.Now.Year + " " + DateTime.Now.Month + " " + DateTime.Now.Day + " " + DateTime.Now.Hour + " " + DateTime.Now.Minute;
-        myvoice.CreatePromt(text, voiceFile);
-    }
 }
